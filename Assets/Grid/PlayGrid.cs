@@ -17,8 +17,8 @@ public class PlayGrid : MonoBehaviour {
         //myGrid00.Create(2, 4, 1, 1, new Vector3(gameObject.transform.localPosition.x, gameObject.transform.localPosition.y -0.2f, 0));
         //myGrid00.Create(3, 3, 1, 1, new Vector3(-5, 0, 0));
 
-        myGrid.Create(4, 6, 1, 1);
-        myGrid.DislocateRows(3,-0.5f);
+        myGrid.Create(4, 6, 1, 1, Vector3.one);
+        //myGrid.DislocateRows(3,1);
         myGrid.ShowIndex();
         //myGrid.DislocateRows(3, 1f);
     }

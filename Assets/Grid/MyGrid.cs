@@ -26,20 +26,20 @@ public class MyGrid : MonoBehaviour
     public void Create(int rowSize, int colSize, float slotSizeX, float slotSizeY)
     {
         startPosition = gameObject.transform.localPosition;
-        index = new int[colSize, rowSize];
-
+        index = new int[rowSize, colSize];
         navegation = new List<Vector3>();
+
         this.rowSize = rowSize;
         this.colSize = colSize;
         this.slotSizeX = slotSizeX;
         this.slotSizeY = slotSizeY;
 
-        for (int i = 0; i < colSize; i++)
+        for (int i = 0; i < rowSize; i++)
         {
-            for (int j = 0; j < rowSize; j++)
+            for (int j = 0; j < colSize; j++)
             {
-                navegation.Add(new Vector3(i * slotSizeX + startPosition.x, j * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
-                index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento da lista
+                navegation.Add(new Vector3(j * slotSizeX + startPosition.x, i * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
+                index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento adicionado na lista
             }
         }
     }
@@ -55,20 +55,20 @@ public class MyGrid : MonoBehaviour
     public void Create(int rowSize, int colSize, float slotSizeX, float slotSizeY, Vector3 startPosition)
     {
         this.startPosition = startPosition;
-        index = new int[colSize, rowSize];
-
+        index = new int[rowSize, colSize];
         navegation = new List<Vector3>();
-        this.colSize = colSize;
+
         this.rowSize = rowSize;
+        this.colSize = colSize;
         this.slotSizeX = slotSizeX;
         this.slotSizeY = slotSizeY;
 
-        for (int i = 0; i < colSize; i++)
+        for (int i = 0; i < rowSize; i++)
         {
-            for (int j = 0; j < rowSize; j++)
+            for (int j = 0; j < colSize; j++)
             {
-                navegation.Add(new Vector3(i * slotSizeX + startPosition.x, j * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
-                index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento da lista
+                navegation.Add(new Vector3(j * slotSizeX + startPosition.x, i * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
+                index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento adicionado na lista
             }
         }
     }
@@ -91,9 +91,12 @@ public class MyGrid : MonoBehaviour
 //DislocateCols, DislocateOnRow, DislocateOnCol
     public void ShowIndex()
     {
-        foreach (int iteration in index)
+        for (int i = 0; i < rowSize; i++)
         {
-            print(navegation[iteration]);
+            for (int j = 0; j < colSize; j++)
+            {
+                print(navegation[index[i,j]]);
+            }
         }
     }
 
