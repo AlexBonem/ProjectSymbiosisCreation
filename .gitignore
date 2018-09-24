@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /Temp
+/Assets/Assemblies
+/Library/metadata
