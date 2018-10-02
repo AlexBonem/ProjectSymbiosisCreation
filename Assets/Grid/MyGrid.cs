@@ -8,17 +8,27 @@ using UnityEngine.UI;
 /// </summary>
 public class MyGrid : MonoBehaviour
 {
-
     public List<Vector3> navegation; //lista com posições referentes a linha e coluna na grid
     public int[,] index;
+    public bool[,] isIndexActive;
     public Vector3 startPosition;
     public int colSize;
     public int rowSize;
     public float slotSizeX;
     public float slotSizeY;
     public float gizmoSize = 0.4f;
-    private GameObject sphereFromGizmo; // objeto usado para criar esferas nas posições onde se encontrariam os gizmos
+    private GameObject sphereUI; // objetos esferas que marcam as posições espaciais na grid
+    private GameObject planeSelection;
+    //private List<GameObject> selectedSpheresUI; // lista de esferas selecionadas
     private Text display;
+
+    private void FixedUpdate() //destroy selection object after select the spheres
+    {
+        if (planeSelection)
+        {
+            Destroy(planeSelection);
+        }
+    }
 
     /// <summary>
     /// grid com posição inicial igual ao gameobject
@@ -32,6 +42,7 @@ public class MyGrid : MonoBehaviour
     {
         startPosition = gameObject.transform.localPosition;
         index = new int[rowSize, colSize];
+        isIndexActive = new bool[rowSize, colSize];
         navegation = new List<Vector3>();
 
         this.rowSize = rowSize;
@@ -46,6 +57,7 @@ public class MyGrid : MonoBehaviour
             {
                 navegation.Add(new Vector3(j * slotSizeX + startPosition.x, i * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
                 index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento adicionado na lista
+                isIndexActive[i, j] = true; // grava o index como ativo
             }
         }
     }
@@ -63,6 +75,7 @@ public class MyGrid : MonoBehaviour
     {
         this.startPosition = startPosition;
         index = new int[rowSize, colSize];
+        isIndexActive = new bool[rowSize, colSize];
         navegation = new List<Vector3>();
 
         this.rowSize = rowSize;
@@ -77,6 +90,7 @@ public class MyGrid : MonoBehaviour
             {
                 navegation.Add(new Vector3(j * slotSizeX + startPosition.x, i * slotSizeY + startPosition.y)); //i que representa a linha multiplicado pela altura e j que representa a coluna multiplicado pela largura
                 index[i, j] = navegation.IndexOf(navegation[navegation.Count - 1]); // grava o index do último elemento adicionado na lista
+                isIndexActive[i, j] = true; // grava o index como ativo
             }
         }
     }
@@ -140,19 +154,33 @@ public class MyGrid : MonoBehaviour
         {
             for (int j = 0; j < colSize; j++)
             {
-                sphereFromGizmo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sphereFromGizmo.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Specular"))
+                sphereUI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphereUI.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Specular"))
                 {
                     color = Color.cyan
                 };
-                sphereFromGizmo.transform.localScale = new Vector3(gizmoSize, gizmoSize, gizmoSize);
-                sphereFromGizmo.transform.position = navegation[index[i, j]];
-                sphereFromGizmo.AddComponent<InfoIndexGrid>().Create(index[i, j], i,j,0,display);
+                sphereUI.transform.localScale = new Vector3(gizmoSize, gizmoSize, gizmoSize);
+                sphereUI.transform.position = navegation[index[i, j]];
+                sphereUI.AddComponent<Rigidbody>().isKinematic = true;
+                sphereUI.GetComponent<SphereCollider>().isTrigger = true;
+                sphereUI.AddComponent<GridSphere>().Create(index[i, j], i, j, 0, display);
                 //print(navegation[index[i, j]] + "value = " + index[i, j].ToString());
             }
         }
     }
 
+    public void SelectIndexes(Rect rect)
+    {
+        planeSelection = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        planeSelection.GetComponent<MeshRenderer>().enabled = false; // makes the object invisible
+
+        planeSelection.transform.localScale = new Vector3(rect.width, rect.height, 1);
+        planeSelection.transform.localPosition = new Vector3(rect.x, rect.y, 0);
+        planeSelection.tag = "Selector";
+        //Destroy(planeSelection);
+    }
+
+    /*
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
@@ -161,4 +189,5 @@ public class MyGrid : MonoBehaviour
             Gizmos.DrawSphere(navegation[iteration], gizmoSize);
         }
     }
+    */
 }

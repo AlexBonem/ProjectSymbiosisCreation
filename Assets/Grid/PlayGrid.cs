@@ -12,7 +12,8 @@ public class PlayGrid : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         //MyGrid myGrid;
-        this.gameObject.AddComponent<MyGrid>();
+        gameObject.AddComponent<MyGrid>();
+        gameObject.AddComponent<MyMouse>();
         myGrid = this.gameObject.GetComponent<MyGrid>();
         //this.gameObject.AddComponent<MyGrid>();
         //myGrid00 = this.gameObject.GetComponents<MyGrid>()[1];

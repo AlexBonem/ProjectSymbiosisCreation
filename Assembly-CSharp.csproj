@@ -62,8 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Global Assets\Scripts\OOOZZZBBB.cs" />
-    <Compile Include="Assets\Grid\InfoIndexGrid.cs" />
+    <Compile Include="Assets\Grid\GridSphere.cs" />
     <Compile Include="Assets\Grid\MyGrid.cs" />
+    <Compile Include="Assets\Grid\MyMouse.cs" />
     <Compile Include="Assets\Grid\PlayGrid.cs" />
     <Compile Include="Assets\Stickman\Scripts\ForceSystem.cs" />
     <Compile Include="Assets\Stickman\Scripts\IgnoreCollisionSetup.cs" />
@@ -279,6 +280,9 @@
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2018.2.8f1/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <HintPath>C:/Unity/SymbiosisCreation/Assets/Assemblies/System.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
       <HintPath>C:/Unity/SymbiosisCreation/Assets/Global Assets/Assemblies/System.Drawing.dll</HintPath>
