@@ -6,6 +6,8 @@ TagManager:
   tags:
   - IndexText
   - Canvas
+  - Selector
+  - SelectorHighLight
   layers:
   - Default
   - TransparentFX

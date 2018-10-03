@@ -9,12 +9,15 @@ public class MyMouse : MonoBehaviour
     private MyGrid myGrid;
     private Rect rect;
     private GameObject planeUI;
+    private GameObject planeSelector;
     private float distanceMoved;
     private float distanceMovedMin;
     private Vector2 startPosition;
 
     private bool doStartSelection;
     private bool doSelection;
+
+    private MeshRenderer planeUIMeshRenderer;
 
     // Use this for initialization
     void Awake()
@@ -51,6 +54,7 @@ public class MyMouse : MonoBehaviour
                 rect.position += new Vector2(rect.width / 2, rect.height / 2); //configuration, make rect position starts at mouse position from the edges not from the center
                 myGrid.SelectIndexes(rect); // seleciona os índices da grid que estão dentro da area da seleção
                 Destroy(planeUI); //removes the selection object
+                Destroy(planeSelector); //removes the selector
             }
             doSelection = false;
         }
@@ -67,7 +71,8 @@ public class MyMouse : MonoBehaviour
 
         //cria o um retangulo na tela
         planeUI = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        planeUI.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Standard"))
+        planeUIMeshRenderer = planeUI.GetComponent<MeshRenderer>();
+        planeUIMeshRenderer.material = new Material(Shader.Find("Standard"))
         {
             color = Color.red - new Color(0, 0, 0, 0.8f)
         };
@@ -78,14 +83,18 @@ public class MyMouse : MonoBehaviour
         planeUI.transform.localScale = new Vector3(rect.width, rect.height, 1);
         planeUI.transform.localPosition = new Vector3(rect.x + rect.width / 2, rect.y + rect.height / 2, -1);
         //AXB Start, Gambiara para setar o rendering mode para transaparente
-        planeUI.GetComponent<MeshRenderer>().material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        planeUI.GetComponent<MeshRenderer>().material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        planeUI.GetComponent<MeshRenderer>().material.SetInt("_ZWrite", 0);
-        planeUI.GetComponent<MeshRenderer>().material.DisableKeyword("_ALPHATEST_ON");
-        planeUI.GetComponent<MeshRenderer>().material.DisableKeyword("_ALPHABLEND_ON");
-        planeUI.GetComponent<MeshRenderer>().material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
-        planeUI.GetComponent<MeshRenderer>().material.renderQueue = 3000;
+        planeUIMeshRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+        planeUIMeshRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        planeUIMeshRenderer.material.SetInt("_ZWrite", 0);
+        planeUIMeshRenderer.material.DisableKeyword("_ALPHATEST_ON");
+        planeUIMeshRenderer.material.DisableKeyword("_ALPHABLEND_ON");
+        planeUIMeshRenderer.material.EnableKeyword("_ALPHAPREMULTIPLY_ON");
+        planeUIMeshRenderer.material.renderQueue = 3000;
         //AXB End
+
+        planeSelector = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        planeSelector.tag = "SelectorHighLight";
+        planeSelector.GetComponent<MeshRenderer>().enabled = false; // makes the object invisible
 
         doSelection = true;
     }
@@ -100,6 +109,11 @@ public class MyMouse : MonoBehaviour
         if (rect.height == 0) rect.height = 0.01f;
         planeUI.transform.localScale = new Vector3(rect.width, rect.height, 1);
         planeUI.transform.localPosition = new Vector3(rect.x + rect.width / 2, rect.y + rect.height / 2, -1);
+        //planeSelector é usado porque não consegui fazer o planeUI ficar na frente das esferas e colidir com elas ao mesmo tempo;
+
+        planeSelector.transform.localScale = planeUI.transform.localScale;
+        planeSelector.transform.localPosition = new Vector3(planeUI.transform.localPosition.x, planeUI.transform.localPosition.y, 0);
+        
         doStartSelection = false;
     }
 }
