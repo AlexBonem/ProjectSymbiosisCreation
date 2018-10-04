@@ -39,7 +39,7 @@ public class MyMouse : MonoBehaviour
 
         if (Input.GetMouseButton(0)) // acontece quando segurar o botão esquerdo do mouse
         {
-            distanceMoved = Vector2.Distance(startPosition, Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            if (GridSphere.isDragMode == false) distanceMoved = Vector2.Distance(startPosition, Camera.main.ScreenToWorldPoint(Input.mousePosition));
             if (distanceMoved > distanceMovedMin && doSelection == false) doStartSelection = true; // permita começar o método de seleção Selection
         }
 

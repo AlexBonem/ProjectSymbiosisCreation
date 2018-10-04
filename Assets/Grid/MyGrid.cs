@@ -19,14 +19,40 @@ public class MyGrid : MonoBehaviour
     public float gizmoSize = 0.4f;
     private GameObject sphereUI; // objetos esferas que marcam as posições espaciais na grid
     private GameObject planeSelection;
-    //private List<GameObject> selectedSpheresUI; // lista de esferas selecionadas
+    public List<Transform> spheresUISelected; // lista de esferas selecionadas
     private Text display;
+
+    public bool isDragMode = false;
+    public Vector3 dragMouseStartPosition;
 
     private void FixedUpdate() //destroy selection object after select the spheres
     {
         if (planeSelection)
         {
             Destroy(planeSelection);
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonUp(0)) // finaliza o Drag Mode
+        {
+            isDragMode = false;
+            GridSphere.isDragMode = false;
+
+            if (spheresUISelected.Count != 0)
+            {
+                for (int i = 0; i < spheresUISelected.Count; i++)
+                {
+                    spheresUISelected[i].SetParent(null);
+                }
+                spheresUISelected.Clear();
+            }
+        }
+
+        if (isDragMode)
+        {
+            DragSpheres();
         }
     }
 
@@ -50,6 +76,8 @@ public class MyGrid : MonoBehaviour
         this.slotSizeX = slotSizeX;
         this.slotSizeY = slotSizeY;
         this.display = display;
+
+        spheresUISelected = new List<Transform>();
 
         for (int i = 0; i < rowSize; i++)
         {
@@ -83,6 +111,8 @@ public class MyGrid : MonoBehaviour
         this.slotSizeX = slotSizeX;
         this.slotSizeY = slotSizeY;
         this.display = display;
+
+        spheresUISelected = new List<Transform>();
 
         for (int i = 0; i < rowSize; i++)
         {
@@ -178,6 +208,23 @@ public class MyGrid : MonoBehaviour
         planeSelection.transform.localPosition = new Vector3(rect.x, rect.y, 0);
         planeSelection.tag = "Selector";
         //Destroy(planeSelection);
+    }
+
+    public void DragSpheres()
+    {
+        /*
+        for (int i = 0; i < spheresUISelected.Count; i++)
+        {
+            spheresUISelected[i].GetComponent<Transform>().localPosition += Camera.main.ScreenToWorldPoint(Input.mousePosition) - dragMouseStartPosition;
+            print("i = "+i);
+            //print("index: "+iteration.GetComponent<GridSphere>().index);
+            //iteration.GetComponent<MeshRenderer>().material.color = Color.magenta;
+            
+            print("move");
+        }*/
+        spheresUISelected[0].GetComponent<Transform>().localPosition += Camera.main.ScreenToWorldPoint(Input.mousePosition) - dragMouseStartPosition;
+        dragMouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        print("dragging2");
     }
 
     /*

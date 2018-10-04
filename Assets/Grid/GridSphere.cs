@@ -4,33 +4,73 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Information about the position in the grid
+/// Grid Sphere
 /// </summary>
 public class GridSphere : MonoBehaviour {
-    private int index;
+    public int index;
     private int row;
     private int col;
     private int page;
     private Text display;
+    private MyGrid myGrid;
+    private GameObject mainGameObject;
 
     private MeshRenderer meshRenderer;
-    private bool selected;
+
+    private bool isSelected;
+
+    private static int Count = 0;
+    private static Vector3 dragMouseStartPosition; // posição inicial do mouse quando começar a arrastar as esferas
+    public static bool isDragMode = false; // drag mode
+    public bool isThisSphereSentToDragList = false; // se enviou a lista de esferas selecionadas
+
+    private IEnumerator MyWaitForEndOfFrame() //executa no final do frame
+    {
+        yield return new WaitForEndOfFrame();
+        print(myGrid.spheresUISelected.Count);
+        for (int i = 1; i < myGrid.spheresUISelected.Count; i++)
+        {
+            myGrid.spheresUISelected[i].SetParent(myGrid.spheresUISelected[0].transform);
+        }
+        myGrid.dragMouseStartPosition = dragMouseStartPosition;
+        myGrid.isDragMode = true;
+    }
 
     private void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
+        mainGameObject = GameObject.FindGameObjectWithTag("MainGameObject");
+        myGrid = mainGameObject.GetComponent<MyGrid>();
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
+        if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && isDragMode == false)
         {
-            if (selected)
+            if (isSelected)
             {
-                selected = false; // deseleciona a esfera
-                meshRenderer.material.color = Color.cyan;
+                SelectSphere(false); // deseleciona a esfera
+                isThisSphereSentToDragList = false; // seta todas as esfera como não enviada para lista
             }
         }
+
+        //if (Input.GetMouseButtonUp(0)) isDragMode = false;
+
+        if (isDragMode) Drag();
+    }
+
+    private void Drag()
+    {
+        //envia a esfera para ser arrastada
+        if (!isThisSphereSentToDragList && isSelected)
+        {
+            myGrid.spheresUISelected.Add(gameObject.transform);
+            print("sent");
+            isThisSphereSentToDragList = true;
+        }
+        print("drag");
+        //this.gameObject.transform.localPosition += Camera.main.ScreenToWorldPoint(Input.mousePosition) - dragMouseStartPosition;
+        //dragMouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public void Create(int index, int row, int col, int page, Text display)
@@ -41,7 +81,30 @@ public class GridSphere : MonoBehaviour {
         this.page = page;
         this.display = display;
 
-        selected = false;
+        isSelected = false;
+        Count++;
+    }
+
+    //OnMouaseEvents executa antes do update e lateupdate
+
+    private void OnMouseDown() // seleciona a esfera usando o control
+    {
+        
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            isSelected = !isSelected;
+        }
+        else
+        {
+            isSelected = true;
+            if (!Input.GetKey(KeyCode.LeftShift))
+            {
+                isDragMode = true;
+                //myGrid.spheresUISelected.Clear();
+                dragMouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                StartCoroutine(MyWaitForEndOfFrame());
+            }
+        }
     }
 
     private void OnMouseEnter()
@@ -59,10 +122,10 @@ public class GridSphere : MonoBehaviour {
 
     private void OnMouseExit()
     {
-        if (!Input.GetMouseButton(0)) // quando o botão esquerdo do mouse não estiver sendo apertado
+        if (!Input.GetMouseButton(0) || isDragMode) // quando o botão esquerdo do mouse não estiver sendo apertado
         { 
             display.text = "";
-            if (selected) meshRenderer.material.color = Color.green;
+            if (isSelected) meshRenderer.material.color = Color.green;
             else meshRenderer.material.color = Color.cyan;
         }
     }
@@ -73,27 +136,23 @@ public class GridSphere : MonoBehaviour {
         {
             if (!Input.GetKey(KeyCode.LeftControl)) // se Control não estiver sendo apertado
             {
-                selected = true;
-                meshRenderer.material.color = Color.green;
+                SelectSphere(true);
             }
             else 
             {
                 if (Input.GetKey(KeyCode.LeftShift)) // inverte a seleção
                 {
-                    selected = false;
-                    meshRenderer.material.color = Color.cyan;
+                    SelectSphere(false);
                 }
                 else
                 {
-                    if (selected)
+                    if (isSelected)
                     {
-                        selected = false;
-                        meshRenderer.material.color = Color.cyan;
+                        SelectSphere(false);
                     }
                     else
                     {
-                        selected = true;
-                        meshRenderer.material.color = Color.green;
+                        SelectSphere(true);
                     }
                 }
             }
@@ -111,24 +170,31 @@ public class GridSphere : MonoBehaviour {
     {
         if (other.tag == "SelectorHighLight")
         {
-            if (selected) meshRenderer.material.color = Color.green;
+            if (isSelected) meshRenderer.material.color = Color.green;
             else meshRenderer.material.color = Color.cyan;
         }
     }
 
-    //refactoration
+    //refactorization
 
     private void SelectionHighLight(Collider other)
     {
         if (other.tag == "SelectorHighLight")
         {
             if (Input.GetKey(KeyCode.LeftControl) && !Input.GetKey(KeyCode.LeftShift))
-                if (selected) meshRenderer.material.color = Color.cyan;
+                if (isSelected) meshRenderer.material.color = Color.cyan;
                 else meshRenderer.material.color = new Color(0.25f, 1, 0.5f);
             else
                 if (Input.GetKey(KeyCode.LeftControl)) meshRenderer.material.color = Color.cyan;
                 else
                     if (meshRenderer.material.color != new Color(0.25f, 1, 0.5f)) meshRenderer.material.color = new Color(0.25f, 1, 0.5f);
         }
+    }
+
+    private void SelectSphere(bool selection) // seleciona ou deseleciona uma esfera
+    {
+        isSelected = selection;
+        if (selection) meshRenderer.material.color = Color.green;
+        else meshRenderer.material.color = Color.cyan;
     }
 }
