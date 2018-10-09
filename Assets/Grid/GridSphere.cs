@@ -17,9 +17,8 @@ public class GridSphere : MonoBehaviour {
 
     private MeshRenderer meshRenderer;
 
-    private bool isSelected;
+    public bool isSelected;
 
-    private static int Count = 0;
     private static Vector3 dragMouseStartPosition; // posição inicial do mouse quando começar a arrastar as esferas
     public static bool isDragMode = false; // drag mode
     public bool isThisSphereSentToDragList = false; // se enviou a lista de esferas selecionadas
@@ -27,13 +26,28 @@ public class GridSphere : MonoBehaviour {
     private IEnumerator MyWaitForEndOfFrame() //executa no final do frame
     {
         yield return new WaitForEndOfFrame();
-        print(myGrid.spheresUISelected.Count);
-        for (int i = 1; i < myGrid.spheresUISelected.Count; i++)
+
+        myGrid.spheresUISelected.Clear();
+
+        for (int i = 0; i < myGrid.spheres.Count; i++) // remove todas as definições de filhos
         {
-            myGrid.spheresUISelected[i].SetParent(myGrid.spheresUISelected[0].transform);
+            if (myGrid.spheres[i].transform.parent) myGrid.spheres[i].transform.SetParent(null);
+        }
+
+        print("before spheres: " + myGrid.spheresUISelected.Count);
+        for (int i = 0; i < myGrid.spheres.Count; i++)
+        {
+            if (myGrid.spheresGridSphere[i].isSelected)
+            {
+                myGrid.spheresUISelected.Add(myGrid.spheresGridSphere[i].transform);
+
+                if (myGrid.spheresUISelected.Count > 0)
+                    myGrid.spheresUISelected[myGrid.spheresUISelected.Count - 1].SetParent(myGrid.spheresUISelected[0].transform);
+            }
         }
         myGrid.dragMouseStartPosition = dragMouseStartPosition;
         myGrid.isDragMode = true;
+        print("after spheres: " + myGrid.spheresUISelected.Count);
     }
 
     private void Awake()
@@ -43,6 +57,7 @@ public class GridSphere : MonoBehaviour {
         myGrid = mainGameObject.GetComponent<MyGrid>();
     }
 
+    
     private void Update()
     {
         if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl) && isDragMode == false)
@@ -53,24 +68,6 @@ public class GridSphere : MonoBehaviour {
                 isThisSphereSentToDragList = false; // seta todas as esfera como não enviada para lista
             }
         }
-
-        //if (Input.GetMouseButtonUp(0)) isDragMode = false;
-
-        if (isDragMode) Drag();
-    }
-
-    private void Drag()
-    {
-        //envia a esfera para ser arrastada
-        if (!isThisSphereSentToDragList && isSelected)
-        {
-            myGrid.spheresUISelected.Add(gameObject.transform);
-            print("sent");
-            isThisSphereSentToDragList = true;
-        }
-        print("drag");
-        //this.gameObject.transform.localPosition += Camera.main.ScreenToWorldPoint(Input.mousePosition) - dragMouseStartPosition;
-        //dragMouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public void Create(int index, int row, int col, int page, Text display)
@@ -82,14 +79,14 @@ public class GridSphere : MonoBehaviour {
         this.display = display;
 
         isSelected = false;
-        Count++;
+        myGrid.spheres.Add(gameObject);
+        myGrid.spheresGridSphere.Add(gameObject.GetComponent<GridSphere>());
     }
 
     //OnMouaseEvents executa antes do update e lateupdate
 
     private void OnMouseDown() // seleciona a esfera usando o control
     {
-        
         if (Input.GetKey(KeyCode.LeftControl))
         {
             isSelected = !isSelected;
@@ -100,7 +97,6 @@ public class GridSphere : MonoBehaviour {
             if (!Input.GetKey(KeyCode.LeftShift))
             {
                 isDragMode = true;
-                //myGrid.spheresUISelected.Clear();
                 dragMouseStartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 StartCoroutine(MyWaitForEndOfFrame());
             }
@@ -112,9 +108,9 @@ public class GridSphere : MonoBehaviour {
         if (!Input.GetMouseButton(0)) // quando o botão esquerdo do mouse não estiver sendo apertado
         { 
             if (page == 0)
-                display.text = index.ToString() + " is " + row.ToString() + "x" + col.ToString();
+                display.text = index.ToString() + " is " + row.ToString() + "x" + col.ToString() + " sel: " + isSelected;
             else
-                display.text = index.ToString() + " is " + row.ToString() + "x" + col.ToString() + "x" + page.ToString();
+                display.text = index.ToString() + " is " + row.ToString() + "x" + col.ToString() + "x" + page.ToString() + " sel: " + isSelected; ;
             display.text += "\n" + gameObject.transform.position.x + "x " + gameObject.transform.position.y + "y " + gameObject.transform.position.z + "z";
             meshRenderer.material.color = Color.red;
         }
